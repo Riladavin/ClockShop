@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,13 +23,6 @@ public class Clock {
     @Column
     private String name;
 
-    @NotNull
-    @Getter
-    @Setter
-    @Column
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Time time;
-
     @Getter
     @Setter
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -36,11 +30,14 @@ public class Clock {
             joinColumns = {@JoinColumn(name = "clock_id")},
             inverseJoinColumns = {@JoinColumn(name = "clock_shop_id")}
     )
-    private List<ClockShop> shop;
+    private List<ClockShop> shops;
 
-    public Clock() {}
+    public Clock() {
+        shops = new ArrayList<>();
+    }
 
     public Clock(String name) {
+        this();
         this.name = name;
     }
 }

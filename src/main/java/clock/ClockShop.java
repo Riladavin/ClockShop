@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,9 +35,12 @@ public class ClockShop {
     )
     private List<Clock> clocks;
 
-    public ClockShop() {}
+    public ClockShop() {
+        clocks = new ArrayList<>();
+    }
 
     public ClockShop(String name) {
-        this.name = name;
+       this();
+       this.name = name;
     }
 }

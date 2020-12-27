@@ -25,7 +25,7 @@ public class Main {
 
         while (true) {
             commandList.listCommands();
-            String currentCommandName = in.nextLine();
+            String currentCommandName = in.next();
             var currentCommand = commandList.getCommand(currentCommandName);
             try {
                 currentCommand.perform(session, in);

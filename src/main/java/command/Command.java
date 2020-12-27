@@ -1,12 +1,11 @@
 package command;
 
-import javafx.util.Pair;
+import Pair.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Session;
 
-import java.util.List;
 import java.util.Scanner;
 import java.util.function.Function;
 
@@ -44,7 +43,7 @@ public class Command {
     public static Command invalidCommand;
     static {
         invalidCommand = new Command("invalid command", "just invalid func", func -> {
-            System.out.println("invalid function");
+            System.out.println("you performed an invalid function");
             return null;
         });
     }

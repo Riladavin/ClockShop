@@ -8,13 +8,16 @@ import lombok.ToString;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 @ToString
 public class CommandList {
     private List<Command> commandList;
 
-    public CommandList() {}
+    public CommandList() {
+        commandList = new ArrayList<>();
+    }
 
     public void initDefaultCommands() {
         commandList.add(new Command("add_clock", "adds clock", sessionScannerPair -> {
@@ -25,11 +28,12 @@ public class CommandList {
 
             try {
                 System.out.println("print name of clocks please: ");
-                var name = in.nextLine();
+                var name = in.next();
                 var newClock = new Clock(name);
                 session.save(newClock);
                 transaction.commit();
             }catch (Exception e) {
+                transaction.commit();
                 e.printStackTrace();
             }
 
@@ -43,11 +47,12 @@ public class CommandList {
 
             try {
                 System.out.println("print name of shop please: ");
-                var name = in.nextLine();
+                var name = in.next();
                 var newClockShop = new ClockShop(name);
                 session.save(newClockShop);
                 transaction.commit();
             }catch (Exception e) {
+                transaction.commit();
                 e.printStackTrace();
             }
 
@@ -80,9 +85,19 @@ public class CommandList {
                     System.out.printf("Please select number of clocks to delete(from 1 to %d):\n", clockList.size());
                     indexToDelete = in.nextInt();
                 }
-                session.delete(clockList.get(--indexToDelete));
+                var clockToDelete = clockList.get(--indexToDelete);
+
+                //deleting links clock<->clock_shop
+                clockList.get(indexToDelete).getShops().forEach(shop -> {
+                    session.delete(new ClocksForShops(shop.getId(), clockToDelete.getId()));
+                });
+
+                //deleting clock
+                session.delete(clockToDelete);
+
                 transaction.commit();
             }catch (Exception e) {
+                transaction.commit();
                 e.printStackTrace();
             }
 
@@ -115,9 +130,19 @@ public class CommandList {
                     System.out.printf("Please select number of clock shop to delete(from 1 to %d):\n", clockShopList.size());
                     indexToDelete = in.nextInt();
                 }
-                session.delete(clockShopList.get(--indexToDelete));
+                var clockShopToDelete = clockShopList.get(--indexToDelete);
+
+                //deleting links clock<->clock_shop
+                clockShopToDelete.getClocks().forEach(clock -> {
+                    session.delete(new ClocksForShops(clockShopToDelete.getId(), clock.getId()));
+                });
+
+                //deleting clock shops
+                session.delete(clockShopToDelete);
+
                 transaction.commit();
             }catch (Exception e) {
+                transaction.commit();
                 e.printStackTrace();
             }
 
@@ -174,16 +199,16 @@ public class CommandList {
                 transaction.commit();
 
             }catch (Exception e) {
+                transaction.commit();
                 e.printStackTrace();
             }
 
             return null;
         }));
         commandList.add(new Command("list_clocks_by_shop", "displays watches from a specific store", sessionScannerPair -> {
-//bootstrap
+            //bootstrap
             var session = sessionScannerPair.getKey();
             var in = sessionScannerPair.getValue();
-            var transaction = session.beginTransaction();
 
             CriteriaBuilder builderForClockShops = session.getCriteriaBuilder();
             CriteriaQuery<ClockShop> queryClockShops = builderForClockShops.createQuery(ClockShop.class);
@@ -194,7 +219,6 @@ public class CommandList {
                 var clockShopList = session.createQuery(queryClockShops).getResultList();
                 if (clockShopList.isEmpty()) {
                     System.out.println("no clock shops");
-                    transaction.commit();
                     return null;
                 }
                 System.out.println("Clock shops:");
@@ -207,11 +231,14 @@ public class CommandList {
                     System.out.printf("Please select number of clock shop(number from 1 to %d):\n", clockShopList.size());
                     shopIndexToDelete = in.nextInt();
                 }
-
-                for (var clock: clockShopList.get(--shopIndexToDelete).getClocks()) {
+                shopIndexToDelete--;
+                if (clockShopList.get(shopIndexToDelete).getClocks().isEmpty()) {
+                    System.out.println("no clocks in this shop");
+                    return null;
+                }
+                for (var clock: clockShopList.get(shopIndexToDelete).getClocks()) {
                     System.out.println(clock.getName());
                 }
-                transaction.commit();
 
             }catch (Exception e) {
                 e.printStackTrace();

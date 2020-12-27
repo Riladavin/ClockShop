@@ -1,8 +1,7 @@
 -- migrations up: only by hands
 CREATE TABLE IF NOT EXISTS clocks(
-    id              BIGSERIAL           NOT NULL,
+    id              SERIAL              NOT NULL,
     name            VARCHAR             NOT NULL,
-    time            TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(id)
 );
@@ -11,7 +10,7 @@ CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS search_by_id ON clocks(id);
 CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS unique_names ON clocks(name);
 
 CREATE TABLE IF NOT EXISTS clock_shops(
-    clock_shop_id       BIGSERIAL           NOT NULL,
+    clock_shop_id       SERIAL              NOT NULL,
     name                VARCHAR             NOT NULL,
 
     PRIMARY KEY (clock_shop_id)
@@ -21,8 +20,8 @@ CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS shops_search_by_id ON clocks(id);
 CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS shops_unique_names ON clocks(name);
 
 CREATE TABLE IF NOT EXISTS clocks_for_shops(
-    clock_shop_id           BIGINT              NOT NULL,
-    clock_id                BIGINT              NOT NULL,
+    clock_shop_id           INT              NOT NULL,
+    clock_id                INT              NOT NULL,
 
     PRIMARY KEY (clock_shop_id, clock_id)
 );
